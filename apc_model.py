@@ -82,7 +82,7 @@ class APCModel(nn.Module):
   """
 
   def __init__(self, mel_dim, prenet_config, rnn_config):
-    super(ACPModel, self).__init__()
+    super(APCModel, self).__init__()
     self.mel_dim = mel_dim
 
     if prenet_config is not None:
