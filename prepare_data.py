@@ -27,7 +27,7 @@ def main():
 
       if len(data) == 1:
         if data[0] == '.':  # end of the current utterance
-          id2len[utt_id + '.pt'] = max(len(log_mel), config.max_seq_len)
+          id2len[utt_id + '.pt'] = min(len(log_mel), config.max_seq_len)
           log_mel = torch.FloatTensor(log_mel)  # convert the 2D list to a pytorch tensor
           log_mel = F.pad(log_mel, (0, 0, 0, config.max_seq_len - log_mel.size(0))) # pad or truncate
           torch.save(log_mel, os.path.join(config.save_dir, utt_id + '.pt'))
