@@ -59,10 +59,10 @@ There are many ways to incorporate `feats` into your downtream task. One of the 
 ## Reference
 Please cite our paper if you find this repository useful.
 ```
-@article{chung2019unsupervised,
+@inproceedings{chung2019unsupervised,
   title = {An unsupervised autoregressive model for speech representation learning},
   author = {Chung, Yu-An and Hsu, Wei-Ning and Tang, Hao and Glass, James},
-  journal = {arXiv preprint arXiv:1904.03240},
+  booktitle = {Interspeech},
   year = {2019}
 }
 ```
