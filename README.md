@@ -3,6 +3,9 @@ This repository contains the official implementation (in PyTorch) of the Autoreg
 
 APC is a speech feature extractor trained on a large amount of unlabeled data. With an unsupervised, autoregressive training objective, representations learned by APC not only capture general acoustic characteristics such as speaker and phone information from the speech signals, but are also highly accessible to downstream models--our experimental results on phone classification show that a linear classifier taking the APC representations as the input features significantly outperforms a multi-layer percepron using the surface features.
 
+=== 10/29/2019 update ===
+Our new paper entitled [Generative Pre-Training for Speech with Autoregressive Predictive Coding](https://arxiv.org/abs/1910.12607) is now online. In this work we study the transferability of APC representations to a wide range of downstream speech tasks, including speech recognition, speech translation, and speaker identification. We also compare the effectiveness of RNN and Transformer as the backbone architecture for training APC. Code will be added to this repository upon acceptance.
+
 ## Dependencies
 * Python 3.5
 * PyTorch 1.0
@@ -54,15 +57,23 @@ _, feats = model.forward(inputs, lengths)
 
 As you can see, `feats` is essentially the RNN hidden states in an APC model. You can think of APC as a speech version of [ELMo](https://www.aclweb.org/anthology/N18-1202) if you are familiar with it.
 
-There are many ways to incorporate `feats` into your downtream task. One of the easiest way is to take only the outputs of the last RNN layer (i.e., `feats[-1, :, :, :]`) as the input features to your downstream model, which is what we did in our paper. Feel free to explore other mechanisms.
+There are many ways to incorporate `feats` into your downstream task. One of the easiest way is to take only the outputs of the last RNN layer (i.e., `feats[-1, :, :, :]`) as the input features to your downstream model, which is what we did in our paper. Feel free to explore other mechanisms.
 
 ## Reference
-Please cite our paper if you find this repository useful.
+Please cite our paper(s) if you find this repository useful. Cite both if you are kind enough!
 ```
 @inproceedings{chung2019unsupervised,
   title = {An unsupervised autoregressive model for speech representation learning},
   author = {Chung, Yu-An and Hsu, Wei-Ning and Tang, Hao and Glass, James},
   booktitle = {Interspeech},
+  year = {2019}
+}
+```
+```
+@article{chung2019generative,
+  title = {Generative pre-training for speech with autoregressive predictive coding},
+  author = {Chung, Yu-An and Glass, James},
+  journal = {arXiv preprint arXiv:1910.12607},
   year = {2019}
 }
 ```
