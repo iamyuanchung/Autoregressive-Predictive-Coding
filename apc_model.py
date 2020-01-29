@@ -5,11 +5,10 @@ from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 
 class Prenet(nn.Module):
   """Prenet is a multi-layer fully-connected network with ReLU activations.
-  During training and testing (feature extraction), each input frame is passed
-  into the Prenet, and the Prenet output is fed to the RNN.
-
-  If no Prenet configuration is given, the input frames will be directly fed to
-  the RNN without any transformation.
+  During training and testing (i.e., feature extraction), each input frame is
+  passed into the Prenet, and the Prenet output is then fed to the RNN. If
+  Prenet configuration is None, the input frames will be directly fed to the
+  RNN without any transformation.
   """
 
   def __init__(self, input_size, num_layers, hidden_size, dropout):
@@ -17,10 +16,8 @@ class Prenet(nn.Module):
     input_sizes = [input_size] + [hidden_size] * (num_layers - 1)
     output_sizes = [hidden_size] * num_layers
 
-    # Don't get confused by the conv operation here -- since kernel_size and stride
-    # are both 1, the operation here is equivalent to a fully-connected network.
     self.layers = nn.ModuleList(
-      [nn.Conv1d(in_channels=in_size, out_channels=out_size, kernel_size=1, stride=1)
+      [nn.Linear(in_features=in_size, out_features=out_size)
       for (in_size, out_size) in zip(input_sizes, output_sizes)])
 
     self.relu = nn.ReLU()
@@ -29,26 +26,23 @@ class Prenet(nn.Module):
 
   def forward(self, inputs):
     # inputs: (batch_size, seq_len, mel_dim)
-    inputs = torch.transpose(inputs, 1, 2)
-    # inputs: (batch_size, mel_dim, seq_len) -- for conv1d operation
-
     for layer in self.layers:
       inputs = self.dropout(self.relu(layer(inputs)))
-    # inputs: (batch_size, last_dim, seq_len)
 
-    return torch.transpose(inputs, 1, 2)
-    # inputs: (batch_size, seq_len, last_dim) -- back to the original shape
+    return inputs
+    # inputs: (batch_size, seq_len, out_dim)
 
 
 class Postnet(nn.Module):
-  """Postnet is a simple linear layer for predicting the target frames given the
-  RNN context during training. We don't need the Postnet for feature extraction.
+  """Postnet is a simple linear layer for predicting the target frames given
+  the RNN context during training. We don't need the Postnet for feature
+  extraction.
   """
 
   def __init__(self, input_size, output_size=80):
     super(Postnet, self).__init__()
-    self.layer = nn.Conv1d(
-      in_channels=input_size, out_channels=output_size, kernel_size=1, stride=1)
+    self.layer = nn.Conv1d(in_channels=input_size, out_channels=output_size,
+                           kernel_size=1, stride=1)
 
 
   def forward(self, inputs):
@@ -99,7 +93,8 @@ class APCModel(nn.Module):
       assert rnn_config.input_size == mel_dim
       self.prenet = None
 
-    in_sizes = [rnn_config.input_size] + [rnn_config.hidden_size] * (rnn_config.num_layers - 1)
+    in_sizes = ([rnn_config.input_size] +
+                [rnn_config.hidden_size] * (rnn_config.num_layers - 1))
     out_sizes = [rnn_config.hidden_size] * rnn_config.num_layers
     self.rnns = nn.ModuleList(
       [nn.GRU(input_size=in_size, hidden_size=out_size, batch_first=True)
@@ -167,4 +162,5 @@ class APCModel(nn.Module):
     internal_reps = torch.stack(internal_reps)
 
     return predicted_mel, internal_reps
-    # predicted_mel is only for training; internal_reps is the extracted features
+    # predicted_mel is only for training; internal_reps is the extracted
+    # features
